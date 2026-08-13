@@ -1,0 +1,20 @@
+{% extends 'base.html' %}{% block title %}Phân công nhóm • PBL Manager{% endblock %}
+{% block content %}
+<section class="page-head"><div><span class="eyebrow">PHÂN CÔNG</span><h1>Sinh viên / nhóm sinh viên</h1><p>Dùng khi danh sách chưa có cột Đề, sinh viên xin đổi nhóm hoặc cần đổi loại dự án.</p></div></section>
+<section class="panel">
+  <h2>1. Chuyển sinh viên sang nhóm khác hoặc tạo nhóm mới</h2>
+  <form method="post" action="{{url_for('admin_group_move')}}" class="assign-form">
+    <label><span>Sinh viên</span><select name="student_db_id" required>{% for s in students %}<option value="{{s.id}}">{{s.student_id}} • {{s.name}}{% if s.group_code %} • {{s.group_code}}{% else %} • Chưa phân nhóm{% endif %}</option>{% endfor %}</select></label>
+    <label><span>Nhóm đích</span><select name="target_group_id"><option value="0">Tạo nhóm mới</option>{% for g in groups if g.member_count < 2 %}<option value="{{g.id}}">{{g.group_code}} • DA{{g.project_type}} • {{g.members}}</option>{% endfor %}</select></label>
+    <label><span>DA khi tạo nhóm mới</span><select name="new_project_type"><option value="0">-- Chọn --</option>{% for p in range(1,6) %}<option value="{{p}}">DA{{p}}</option>{% endfor %}</select></label>
+    <button class="btn primary">Cập nhật phân công</button>
+  </form>
+  <p class="hint">Nếu chọn một nhóm đích có sẵn, hệ thống tự dùng loại đề của nhóm đó. Nếu chọn “Tạo nhóm mới”, cần chọn DA1–DA5.</p>
+</section>
+<section class="panel">
+  <div class="panel-head"><div><h2>2. Danh sách nhóm hiện tại</h2><p>Có thể đổi DA của cả nhóm; hệ thống sẽ cấp lại một bộ số liệu chưa dùng phù hợp.</p></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Nhóm</th><th>Thành viên</th><th>DA</th><th>Mã số liệu</th><th>Đổi loại đề</th><th></th></tr></thead><tbody>
+  {% for g in groups %}<tr><td><strong>{{g.group_code}}</strong></td><td>{{g.members}}</td><td><span class="tag">DA{{g.project_type}}</span></td><td>{{g.data_code or 'Chưa cấp'}}</td><td><form class="inline-form" method="post" action="{{url_for('admin_group_project',group_id=g.id)}}"><select name="project_type">{% for p in range(1,6) %}<option value="{{p}}" {% if p==g.project_type %}selected{% endif %}>DA{{p}}</option>{% endfor %}</select><button class="btn">Đổi DA</button></form></td><td><a class="link" href="{{url_for('group_detail',group_id=g.id)}}">Chi tiết →</a></td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

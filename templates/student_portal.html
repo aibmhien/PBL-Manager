@@ -1,0 +1,48 @@
+{% extends 'base.html' %}{% block title %}DA{{g.project_type}} • PBL{% endblock %}{% block content %}
+{% set group_names = members|map(attribute='name')|join(' - ') %}
+<section class="student-summary no-print">
+  <div><span class="eyebrow">CỔNG SINH VIÊN</span><h1>Nhóm: {{group_names}}</h1><p>DA{{g.project_type}} • Mã số liệu {{g.data_code}} • {{percent}}% tiến độ</p></div>
+  <a class="btn primary" href="{{url_for('print_assignment',group_id=g.id)}}">In / Lưu PDF</a>
+</section>
+
+<section class="assignment-sheet">
+  <div class="school-line">TRƯỜNG ĐẠI HỌC BÁCH KHOA - KHOA CƠ KHÍ</div>
+  <div class="sheet-title">PBL1. THIẾT KẾ HỆ THỐNG CƠ KHÍ</div>
+  <div class="sheet-subtitle">{{info.title|upper}}</div>
+  <div class="assignment-meta">
+    <div><b>Nhóm:</b> {{group_names}}</div>
+    <div><b>Mã nhóm:</b> {{g.group_code}} / {{g.data_code}}</div>
+    <div><b>Giảng viên hướng dẫn:</b> {{settings.instructor_name or '........................................'}}</div>
+    <div><b>Thời gian thực hiện:</b> Từ tuần {{settings.start_week or '...'}} đến tuần {{settings.end_week or '...'}}, năm học {{settings.academic_year_start or '202x'}} - {{settings.academic_year_end or '202y'}}</div>
+  </div>
+  <h3>1. Nhiệm vụ</h3><p class="task-text">{{info.task}}</p>
+  <h3>2. Số liệu cho trước</h3>
+  <div class="assignment-body"><div class="numbers">
+      <div><span>1. {% if g.project_type in [2,4] %}Lực kéo cáp{% else %}Lực kéo băng tải{% endif %}</span><b>P = {{format_num(g.p)}}</b></div>
+      <div><span>2. {% if g.project_type in [2,4] %}Vận tốc kéo cáp{% else %}Vận tốc băng tải{% endif %}</span><b>V = {{format_num(g.v)}}</b></div>
+      <div><span>3. Đường kính tang</span><b>D = {{format_num(g.d)}}</b></div>
+      <div><span>4. Đặc tính tải trọng</span><b>Xem hình bên cạnh</b></div>
+      <div><span>5. Thời gian phục vụ</span><b>{{format_num(g.t)}} năm</b></div>
+      <div class="wide"><span>Một năm làm việc {{format_num(g.nam)}} ngày, một ngày làm việc {{format_num(g.ngay)}} giờ.</span></div>
+      <div class="wide"><span>{{info.direction}}.</span></div>
+    </div><figure class="load-figure"><img src="{{load_image_url(g.project_type)}}" alt="Đặc tính tải trọng DA{{g.project_type}}"><figcaption>Đặc tính tải trọng</figcaption></figure></div>
+  <div class="diagram-row"><figure><img src="{{system_image_url(g.project_type)}}" alt="Sơ đồ động DA{{g.project_type}}"><figcaption>Sơ đồ động của hệ thống</figcaption></figure></div>
+  <div class="sheet-actions no-print"><a class="btn primary" href="{{url_for('print_assignment',group_id=g.id)}}">In / Lưu PDF</a><button class="btn" onclick="window.print()">In trang đề</button></div>
+</section>
+
+<section class="progress-pages">
+  <div class="progress-title"><span class="eyebrow">THEO DÕI HỌC TẬP</span><h2>Tiến độ & nhận xét</h2><p>Nhóm: {{group_names}}</p></div>
+  {% for x in progress %}<div class="student-mile {{'done' if x.status=='Hoàn thành' else ''}}"><div class="check">{{'✓' if x.status=='Hoàn thành' else x.position}}</div><div><b>{{x.title}}</b><small>{{x.status}}{% if x.score is not none %} • Điểm {{x.score}}{% endif %}</small>{% if x.feedback %}<p>“{{x.feedback}}”</p>{% endif %}</div></div>{% endfor %}
+
+  <div class="submission-box no-print"><h2>Báo cáo tiến độ / nộp file</h2><p>Có thể tải cùng lúc file thuyết minh Word, file tính toán Excel và file bản vẽ AutoCAD. Mỗi file tối đa 50 MB.</p>
+    <form method="post" enctype="multipart/form-data" action="{{url_for('student_submit',student_id=s.student_id)}}" class="submission-form">
+      <label><span>Mốc tiến độ</span><select name="milestone_id" required>{% for x in progress %}<option value="{{x.id}}">{{x.position}}. {{x.title}}</option>{% endfor %}</select></label>
+      <label class="grow"><span>Nội dung báo cáo</span><input name="note" placeholder="Ví dụ: Đã hoàn thành tính chọn động cơ, gửi file để thầy xem..."></label>
+      <label class="grow"><span>File đính kèm</span><input type="file" name="files" accept=".docx,.xls,.xlsx,.dwg,.dxf" multiple required></label>
+      <button class="btn primary">Gửi báo cáo tiến độ</button>
+    </form>
+  </div>
+
+  <div class="submission-list no-print"><h2>Các file đã nộp</h2>{% if submissions %}<div class="table-wrap"><table><thead><tr><th>Thời gian</th><th>Mốc</th><th>Người nộp</th><th>Nội dung</th><th>File</th></tr></thead><tbody>{% for sub in submissions %}<tr><td>{{sub.uploaded_at.replace('T',' ')}}</td><td>{{sub.milestone_title or '-'}}</td><td>{{sub.student_name}}</td><td>{{sub.note or '-'}}</td><td><a class="link" href="{{url_for('download_submission',submission_id=sub.id)}}">{{sub.original_name}}</a></td></tr>{% endfor %}</tbody></table></div>{% else %}<p>Chưa có file nào được nộp.</p>{% endif %}</div>
+</section>
+{% endblock %}

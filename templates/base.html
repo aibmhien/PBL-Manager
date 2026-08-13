@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}PBL Manager V0.3.0{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='app.css') }}">
+</head>
+<body>
+<header class="topbar no-print">
+  <div class="brand"><span class="brand-mark">PBL</span><div><strong>PBL Manager</strong><small>V0.3.0 • Thiết kế hệ thống cơ khí</small></div></div>
+  <nav>
+    <a href="{{ url_for('dashboard') }}">Tổng quan</a>
+    <a href="{{ url_for('admin_groups') }}">Phân công nhóm</a>
+    <a href="{{ url_for('admin_import') }}">Cấu hình</a>
+    <a href="{{ url_for('student_lookup') }}">Cổng sinh viên</a>
+  </nav>
+</header>
+<main class="container">
+  {% if request.query_params.get('msg') %}<div class="flash-wrap no-print"><div class="flash ok">{{request.query_params.get('msg')}}</div></div>{% endif %}
+  {% if request.query_params.get('err') %}<div class="flash-wrap no-print"><div class="flash error">{{request.query_params.get('err')}}</div></div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="footer no-print">PBL Manager V0.3.0 • Web HTTP • SQLite</footer>
+</body>
+</html>

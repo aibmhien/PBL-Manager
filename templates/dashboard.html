@@ -1,0 +1,20 @@
+{% extends 'base.html' %}{% block title %}Tổng quan • PBL Manager{% endblock %}
+{% block content %}
+<section class="hero">
+  <div><span class="eyebrow">{{settings.instructor_name or 'Giảng viên hướng dẫn'}}</span><h1>PBL1. Thiết kế hệ thống cơ khí</h1><p>Ứng dụng để quản lý PBL1 và theo dõi tiến độ thực hiện của sinh viên</p></div>
+  <div class="actions"><a class="btn" href="{{ url_for('admin_groups') }}">Phân công nhóm</a><a class="btn primary" href="{{ url_for('admin_import') }}">Cập nhật dữ liệu</a></div>
+</section>
+<div class="stats">
+  <div class="stat"><b>{{stats.students}}</b><span>Sinh viên</span></div>
+  <div class="stat"><b>{{stats.groups}}</b><span>Nhóm</span></div>
+  <div class="stat"><b>{{stats.assigned}}/{{stats.groups}}</b><span>Đã cấp số liệu</span></div>
+  <div class="stat"><b>{{stats.templates}}/5</b><span>Mẫu đề</span></div>
+</div>
+{% if unassigned %}<section class="note"><b>Cần phân công:</b> Có {{unassigned|length}} sinh viên chưa thuộc nhóm hoặc chưa có thông tin đề. <a class="link" href="{{url_for('admin_groups')}}">Mở trang phân công →</a></section>{% endif %}
+<section class="panel">
+  <div class="panel-head"><div><h2>Danh sách nhóm</h2><p>Mỗi nhóm tối đa 2 sinh viên; có thể đổi thành viên hoặc đổi loại đề tại trang Phân công nhóm.</p></div><span class="badge">Dữ liệu hiện hành</span></div>
+  <div class="table-wrap"><table><thead><tr><th>Nhóm</th><th>Sinh viên</th><th>Loại đề</th><th>Mã số liệu</th><th>Tiến độ</th><th></th></tr></thead><tbody>
+  {% for g in groups %}<tr><td><strong>{{g.group_code}}</strong></td><td>{{g.members}}</td><td><span class="tag">DA{{g.project_type}}</span></td><td>{{g.data_code or 'Chưa cấp'}}</td><td><div class="progress"><span style="width:{{g.progress or 0}}%"></span></div><small>{{g.progress or 0}}%</small></td><td><a class="link" href="{{url_for('group_detail',group_id=g.id)}}">Chi tiết →</a></td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}
